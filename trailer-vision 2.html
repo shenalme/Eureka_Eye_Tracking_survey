@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eye-Tracking Research Study — Cardiff Metropolitan University</title>
+<meta name="description" content="Take part in a webcam-based eye-tracking study exploring how people watch film trailers, run by Cardiff Metropolitan University.">
+
+<!-- ============================================================
+     FONTS
+     Display: Lora (academic serif — the register of a university
+              publication, not a cinema poster)
+     Body:    Inter (clean, highly legible, accessible)
+     Mono:    JetBrains Mono (used only for recorded data — participant
+              ID, timestamps — to visually mark it as "captured data")
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   DESIGN TOKENS
+   ----------------------------------------------------------------
+   Palette: formal university letterhead — paper white, near-black
+   text, a single deep-navy accent (with a muted crimson used only
+   for the small number of "official" marks: crest, seal, ethics
+   box). No dark backgrounds, no gold — this is the participant-
+   facing document, and it should read like institutional stationery.
+   ================================================================ */
+:root{
+  --bg:              #FFFFFF;
+  --bg-panel:        #F7F6F2;
+  --bg-panel-alt:    #EFEDE6;
+
+  --ink:             #17181A;
+  --ink-muted:       #4B4D50;
+  --ink-faint:       #7C7E80;
+
+  --navy:            #1F3A5F;
+  --navy-dark:       #16283F;
+  --crimson:         #7A1F2B;
+
+  --border:          #DAD7CE;
+  --border-strong:   #B7B2A3;
+
+  --success:         #2E6A46;
+  --success-bg:      #EAF3EC;
+  --error:           #8C2A2A;
+  --error-bg:        #FBECEC;
+
+  --focus-ring:      #1F3A5F;
+
+  --font-display: 'Lora', Georgia, serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 3px rgba(23,24,26,0.06), 0 8px 24px rgba(23,24,26,0.05);
+  --max-width: 1080px;
+}
+
+/* ================================================================
+   RESET & BASE
+   ================================================================ */
+*, *::before, *::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *, *::before, *::after{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+}
+
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+img{ max-width:100%; display:block; }
+h1,h2,h3,h4{ font-family: var(--font-display); margin:0 0 0.5em; font-weight:600; color: var(--ink); letter-spacing: -0.01em; }
+p{ margin:0 0 1em; color: var(--ink-muted); }
+a{ color: var(--navy); }
+ul{ padding-left: 1.2em; color: var(--ink-muted); }
+li{ margin-bottom: 0.5em; }
+
+.container{
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section{ position: relative; }
+
+/* Skip link — accessibility */
+.skip-link{
+  position:absolute; left:-999px; top:auto;
+  background: var(--navy); color:#fff;
+  padding: 12px 20px; border-radius: 0 0 8px 0;
+  font-weight:600; z-index: 999; text-decoration:none;
+}
+.skip-link:focus{ left:0; top:0; }
+
+/* Visible focus ring everywhere, WCAG-friendly */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible{
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.visually-hidden{
+  position:absolute !important;
+  width:1px; height:1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap;
+}
+
+/* ================================================================
+   MASTHEAD — reads like the header of a university web page
+   ================================================================ */
+.masthead{
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.masthead-inner{
+  display:flex; align-items:center; gap:14px;
+  padding: 16px 24px; max-width: var(--max-width); margin: 0 auto;
+}
+.crest{
+  width: 40px; height:40px; border-radius: 4px; flex-shrink:0;
+  background: var(--navy); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+.masthead-text .institution{
+  font-family: var(--font-display); font-weight:600; font-size: 1rem; color: var(--ink);
+}
+.masthead-text .department{
+  font-size: 0.82rem; color: var(--ink-faint);
+}
+
+/* Rule divider with a small centred mark — the recurring signature
+   device standing in for a manuscript's section ornament */
+.rule-divider{
+  display:flex; align-items:center; justify-content:center; gap: 14px;
+  padding: 8px 24px; max-width: 420px; margin: 0 auto;
+}
+.rule-divider::before, .rule-divider::after{
+  content:""; flex:1; height:1px; background: var(--border-strong);
+}
+.rule-divider .mark{
+  width: 6px; height:6px; border-radius:50%; background: var(--crimson);
+}
+
+/* ================================================================
+   TOP PROGRESS STEPPER
+   ================================================================ */
+.stepper{
+  position: sticky; top:0; z-index: 40;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.stepper-inner{
+  display:flex; align-items:center; justify-content:center;
+  gap: 8px; padding: 14px 24px; max-width: var(--max-width); margin:0 auto;
+  flex-wrap: wrap;
+}
+.step{
+  display:flex; align-items:center; gap:10px;
+  font-size: 0.85rem; color: var(--ink-faint);
+}
+.step-num{
+  width: 26px; height:26px; border-radius:50%;
+  border: 1.5px solid var(--border-strong);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-mono); font-size: 0.75rem;
+  flex-shrink:0; transition: all .3s ease; color: var(--ink-faint);
+}
+.step.is-active .step-num{ border-color: var(--navy); color: var(--navy); box-shadow: 0 0 0 4px rgba(31,58,95,0.08); }
+.step.is-active .step-label{ color: var(--ink); font-weight:600; }
+.step.is-done .step-num{ background: var(--navy); border-color: var(--navy); color:#fff; }
+.step.is-done .step-label{ color: var(--navy); }
+.step-connector{ width: 28px; height:1px; background: var(--border); }
+@media (max-width: 640px){
+  .step-label{ display:none; }
+  .step-connector{ width: 16px; }
+}
+
+/* ================================================================
+   WELCOME SECTION — the very first thing a participant reads
+   ================================================================ */
+.welcome{
+  padding: 72px 24px 56px;
+  text-align:center;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.welcome .eyebrow{
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--navy); margin-bottom: 16px;
+}
+.welcome h1{
+  font-size: clamp(1.7rem, 3.6vw, 2.4rem);
+  max-width: 20ch; margin-left:auto; margin-right:auto;
+}
+.welcome p.lede{
+  max-width: 60ch; margin: 18px auto 0; font-size: 1.05rem;
+}
+
+/* ================================================================
+   STUDY PROMOTION (hero)
+   ================================================================ */
+.hero{
+  padding: 88px 24px 84px;
+  text-align:center;
+}
+.hero-eyebrow{
+  font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--crimson); margin-bottom: 20px;
+}
+.hero h2{
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  max-width: 18ch; margin-left:auto; margin-right:auto;
+  line-height: 1.12;
+}
+.hero h2 em{ font-style: italic; color: var(--navy); }
+.hero p.subtitle{
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  max-width: 50ch; margin: 20px auto 40px;
+}
+
+/* Line-art diagram standing in for the cinematic hero image — an
+   academic figure, not a poster: a simple eye with a scan path,
+   the way a methods diagram would show attention tracking. */
+.figure-box{
+  width: min(520px, 88vw); margin: 0 auto 44px;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: #fff; box-shadow: var(--shadow-card);
+  padding: 28px 28px 18px;
+}
+.figure-box svg{ width:100%; height:auto; display:block; }
+.figure-caption{
+  font-size: 0.78rem; color: var(--ink-faint); margin-top: 12px; text-align:center;
+  font-style: italic;
+}
+.gaze-dot{ fill: var(--crimson); }
+
+.btn{
+  font-family: var(--font-body); font-weight:600; font-size: 1rem;
+  padding: 15px 32px; border-radius: 6px; border: none; cursor:pointer;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+  display:inline-flex; align-items:center; gap:10px;
+}
+.btn-primary{
+  background: var(--navy);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(31,58,95,0.22);
+}
+.btn-primary:hover{ background: var(--navy-dark); transform: translateY(-1px); }
+.btn-primary:disabled{
+  background: #C9C6BC; color: #8B8880; box-shadow:none; cursor:not-allowed; transform:none;
+}
+.btn-ghost{
+  background: transparent; color: var(--ink);
+  border: 1.5px solid var(--border-strong);
+}
+.btn-ghost:hover{ border-color: var(--navy); color: var(--navy); }
+.btn-large{ padding: 18px 40px; font-size: 1.05rem; }
+
+/* ================================================================
+   SECTION HEADERS
+   ================================================================ */
+.section-pad{ padding: 88px 24px; }
+.section-head{ max-width: 640px; margin: 0 auto 52px; text-align:center; }
+.section-eyebrow{
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--navy); margin-bottom: 14px;
+}
+.section-head h2{ font-size: clamp(1.5rem, 3vw, 2.1rem); }
+.section-head p{ margin-top: 12px; }
+
+/* ================================================================
+   INFORMATION CARDS (accordion)
+   ================================================================ */
+.info-grid{
+  display:grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.info-card{
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow:hidden;
+  transition: border-color .2s ease;
+}
+.info-card:hover, .info-card:focus-within{ border-color: var(--border-strong); }
+.info-card summary{
+  list-style:none; cursor:pointer;
+  padding: 20px 22px;
+  display:flex; align-items:center; gap:16px;
+  font-family: var(--font-display); font-weight:600; font-size: 1.02rem;
+  color: var(--ink);
+}
+.info-card summary::-webkit-details-marker{ display:none; }
+.info-card summary .icon{
+  width: 38px; height:38px; flex-shrink:0; border-radius: 8px;
+  background: var(--bg-panel-alt);
+  display:flex; align-items:center; justify-content:center;
+  color: var(--navy); border: 1px solid var(--border);
+}
+.info-card summary .chevron{
+  margin-left:auto; color: var(--ink-faint); transition: transform .25s ease; flex-shrink:0;
+}
+.info-card[open] summary .chevron{ transform: rotate(180deg); }
+.info-card .info-body{
+  padding: 0 22px 22px 76px;
+  color: var(--ink-muted); font-size: 0.95rem;
+}
+.info-card .info-body p:last-child{ margin-bottom:0; }
+
+/* Ethics placeholder box */
+.placeholder-note{
+  display:inline-block; font-family: var(--font-mono); font-size: 0.85em;
+  background: var(--bg-panel-alt); color: var(--crimson);
+  padding: 1px 8px; border-radius: 4px; border: 1px dashed var(--border-strong);
+}
+
+.ethics-box{
+  margin-top: 36px; background: var(--bg-panel);
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 26px 28px; max-width: 620px; margin-left:auto; margin-right:auto;
+}
+.ethics-box dl{ display:grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin:0; }
+.ethics-box dt{ color: var(--ink-faint); font-size: 0.86rem; }
+.ethics-box dd{ margin:0; color: var(--ink); }
+
+/* ================================================================
+   WITHDRAWAL SECTION
+   ================================================================ */
+.withdrawal{
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.withdrawal-inner{
+  max-width: 740px; margin: 0 auto; text-align:center;
+}
+.withdrawal-inner .icon-badge{
+  width:54px; height:54px; border-radius:50%; margin: 0 auto 20px;
+  background: #fff; color: var(--navy); border: 1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ================================================================
+   CONSENT FORM
+   ================================================================ */
+.consent-panel{
+  max-width: 700px; margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 38px clamp(20px, 5vw, 46px);
+  box-shadow: var(--shadow-card);
+}
+.consent-list{ list-style:none; padding:0; margin: 26px 0; }
+.consent-item{
+  display:flex; align-items:flex-start; gap: 14px;
+  padding: 15px 0; border-bottom: 1px solid var(--border);
+}
+.consent-item:last-child{ border-bottom:none; }
+.consent-item input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none;
+  width: 21px; height:21px; flex-shrink:0; margin-top:2px;
+  border: 1.5px solid var(--border-strong); border-radius: 5px;
+  cursor:pointer; position:relative; background: #fff;
+  transition: all .15s ease;
+}
+.consent-item input[type="checkbox"]:checked{
+  background: var(--navy); border-color: var(--navy);
+}
+.consent-item input[type="checkbox"]:checked::after{
+  content:""; position:absolute; left:6px; top:2px;
+  width:6px; height:11px; border: solid #fff;
+  border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.consent-item label{ cursor:pointer; color: var(--ink); font-size: 0.97rem; }
+
+.consent-submit-row{ text-align:center; margin-top: 6px; }
+.consent-hint{
+  font-size: 0.84rem; color: var(--ink-faint); margin-top:14px;
+}
+
+.form-status{
+  margin-top: 20px; padding: 15px 18px; border-radius: var(--radius-sm);
+  font-size: 0.94rem; display:none;
+}
+.form-status.is-visible{ display:block; }
+.form-status.status-error{ background: var(--error-bg); color: var(--error); border: 1px solid rgba(140,42,42,0.3); }
+.form-status.status-loading{ background: var(--bg-panel-alt); color: var(--ink-muted); border: 1px solid var(--border); }
+
+/* Confirmation state */
+.confirmation{
+  text-align:center; padding: 32px 0 4px;
+}
+.confirmation .check-badge{
+  width:60px; height:60px; border-radius:50%; margin: 0 auto 20px;
+  background: var(--success-bg); color: var(--success);
+  display:flex; align-items:center; justify-content:center;
+}
+.confirmation h3{ color: var(--ink); }
+.record-summary{
+  font-family: var(--font-mono); font-size: 0.82rem; color: var(--ink-muted);
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px 20px; text-align:left;
+  margin: 22px 0; overflow-x:auto;
+}
+.record-summary div{ white-space: nowrap; }
+.record-summary span{ color: var(--ink-faint); }
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+footer{
+  padding: 44px 24px 56px; text-align:center;
+  border-top: 1px solid var(--border);
+}
+footer p{ font-size: 0.84rem; color: var(--ink-faint); max-width: 60ch; margin: 0 auto; }
+
+/* Reveal-on-scroll */
+.reveal{ opacity:0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.is-visible{ opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<a href="#participant-info" class="skip-link">Skip to study information</a>
+
+<!-- ================================================================
+     MASTHEAD
+     ================================================================ -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="crest" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3l9 4.5-9 4.5-9-4.5L12 3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="masthead-text">
+      <div class="institution">Cardiff Metropolitan University</div>
+      <div class="department">Eureka Robotics Centre</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     PROGRESS STEPPER
+     ================================================================ -->
+<nav class="stepper" aria-label="Study progress">
+  <div class="stepper-inner" id="stepperInner">
+    <div class="step is-active" data-step="1">
+      <span class="step-num">1</span><span class="step-label">Read study information</span>
+    </div>
+    <div class="step-connector" aria-hidden="true"></div>
+    <div class="step" data-step="2">
+      <span class="step-num">2</span><span class="step-label">Provide consent</span>
+    </div>
+    <div class="step-connector" aria-hidden="true"></div>
+    <div class="step" data-step="3">
+      <span class="step-num">3</span><span class="step-label">Begin eye tracking</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ================================================================
+     WELCOME — the first thing a participant reads on this link
+     ================================================================ -->
+<section class="welcome" aria-labelledby="welcome-heading">
+  <div class="container">
+    <p class="eyebrow">Welcome</p>
+    <h1 id="welcome-heading">Thank you for visiting this participant page.</h1>
+    <p class="lede">You've been invited to take part in a research study run by Cardiff Metropolitan University's Eureka Robotics Centre. Before anything is recorded, please take a few minutes to read about the study, what taking part involves, and your rights as a participant. Nothing happens until you choose to consent.</p>
+  </div>
+</section>
+
+<!-- ================================================================
+     STUDY PROMOTION
+     ================================================================ -->
+<header class="hero">
+  <div class="container">
+    <p class="hero-eyebrow">Webcam Eye-Tracking Study</p>
+    <p class="subtitle" style="font-size: clamp(1.05rem, 2.2vw, 1.35rem); color: var(--ink); max-width: 54ch; margin: 0 auto 40px;">We're exploring how people naturally watch film trailers — which moments capture attention, and how that attention moves across the screen. Using your device's webcam, we record where you look while you watch a small set of trailers.</p>
+
+    <div class="figure-box">
+      <svg viewBox="0 0 480 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- simple line-art eye -->
+        <path d="M40 110 C 110 40, 370 40, 440 110 C 370 180, 110 180, 40 110 Z" fill="none" stroke="#1F3A5F" stroke-width="2"/>
+        <circle cx="240" cy="110" r="34" fill="none" stroke="#1F3A5F" stroke-width="2"/>
+        <circle cx="240" cy="110" r="13" fill="#17181A"/>
+        <!-- scan path with waypoints, like a methods-diagram figure -->
+        <path d="M120 70 L 210 95 L 330 60 L 380 140 L 160 150" fill="none" stroke="#7A1F2B" stroke-width="1.4" stroke-dasharray="4 4" opacity="0.6"/>
+        <circle cx="120" cy="70" r="4" class="gaze-dot"/>
+        <circle cx="210" cy="95" r="4" class="gaze-dot"/>
+        <circle cx="330" cy="60" r="4" class="gaze-dot"/>
+        <circle cx="380" cy="140" r="4" class="gaze-dot"/>
+        <circle cx="160" cy="150" r="4" class="gaze-dot"/>
+      </svg>
+      <p class="figure-caption">Illustrative example: gaze points recorded while viewing a trailer.</p>
+    </div>
+
+    <a href="#participant-info" class="btn btn-primary" id="learnMoreBtn">
+      Learn More
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </div>
+</header>
+
+<div class="rule-divider" aria-hidden="true"><span class="mark"></span></div>
+
+<!-- ================================================================
+     PARTICIPANT INFORMATION SHEET
+     ================================================================ -->
+<section id="participant-info" class="section-pad reveal" aria-labelledby="info-heading">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Participant Information Sheet</p>
+      <h2 id="info-heading">Everything you need to know, before you begin</h2>
+      <p>Please read each section below. You can expand or collapse them in any order.</p>
+    </div>
+
+    <div class="info-grid">
+
+      <details class="info-card" open>
+        <summary aria-label="Purpose of the study, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/></svg>
+          </span>
+          Purpose of the study
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>This study investigates how people naturally look at film trailers — which moments draw the eye, and how attention shifts across a scene over time. Your gaze data will help researchers understand visual attention during film viewing.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="What participation involves, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          What participation involves
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>After a short webcam calibration step, you will watch 5 film trailers, one at a time, while your eye movements are recorded. A brief questionnaire follows each trailer. See the Study Procedure section above for the full sequence.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Estimated duration, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3.5 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          Estimated duration
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>The full session takes approximately <strong>15–20 minutes</strong>, including a brief webcam calibration step at the start.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Webcam and eye-tracking requirements, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M16 10l5-3v10l-5-3" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          Webcam &amp; eye-tracking requirements
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>You will need a device with a working webcam and a stable internet connection, in a reasonably well-lit room. Eye position is estimated from the video feed in your browser; no video is required to be permanently stored (see confidentiality below).</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Confidentiality and data protection, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          Confidentiality &amp; data protection
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>Your data is linked only to a randomly generated participant ID — never your name or email. Data is stored securely and used solely for research purposes, in line with Cardiff Metropolitan University's data protection policy and applicable data protection law.</p>
+          <p>Analysis is carried out at the group level on anonymised data only. No individual-level analysis or reporting is performed, and you will not be identifiable in any results.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Risks and benefits, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 4l9 16H3L12 4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 10v4M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          Risks &amp; benefits
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>There are no anticipated risks beyond typical screen use. There is no direct personal benefit, but your participation contributes to research on visual attention and film perception.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Voluntary participation, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg>
+          </span>
+          Voluntary participation
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>Taking part is entirely voluntary. You may stop at any time without giving a reason and without any penalty or disadvantage.</p>
+        </div>
+      </details>
+
+      <details class="info-card">
+        <summary aria-label="Contact details for the research team, expand for details">
+          <span class="icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+          </span>
+          Contact details
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="info-body">
+          <p>Principal Investigator: <span class="placeholder-note">[Principal Investigator Name]</span><br>
+          Email: <span class="placeholder-note">[research-team@cardiffmet.ac.uk]</span><br>
+          Centre: Eureka Robotics Centre, Cardiff Metropolitan University</p>
+        </div>
+      </details>
+
+    </div>
+
+    <div class="ethics-box">
+      <h3 style="font-size:1.02rem;">Ethics approval</h3>
+      <dl>
+        <dt>Institution</dt><dd>Cardiff Metropolitan University</dd>
+        <dt>Research centre</dt><dd>Eureka Robotics Centre</dd>
+        <dt>Ethics approval</dt><dd>Cardiff School of Technologies Research Ethics Committee</dd>
+        <dt>Ethics reference</dt><dd><span class="placeholder-note">[Ethics Reference Number]</span></dd>
+        <dt>Principal Investigator</dt><dd><span class="placeholder-note">[Principal Investigator Name]</span></dd>
+        <dt>Contact email</dt><dd><span class="placeholder-note">[ethics-contact@cardiffmet.ac.uk]</span></dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<div class="rule-divider" aria-hidden="true"><span class="mark"></span></div>
+
+<!-- ================================================================
+     STUDY PROCEDURE — placed after the Participant Information Sheet
+     so participants are already familiar with the study before
+     walking through the sequence. Genuinely sequential, so numbering
+     it is informative rather than decorative.
+     ================================================================ -->
+<section class="section-pad reveal" style="padding-top:72px; padding-bottom:72px;" aria-labelledby="procedure-heading">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Study Procedure</p>
+      <h2 id="procedure-heading">What happens when you open the study link</h2>
+      <p>Now that you know what the study is about, here is exactly what to expect once the webcam link opens:</p>
+    </div>
+    <ol style="list-style:none; padding:0; max-width:640px; margin:0 auto; counter-reset: procstep;">
+      <li style="counter-increment: procstep; display:flex; gap:18px; padding:18px 0; border-bottom:1px solid var(--border);">
+        <span aria-hidden="true" style="font-family:var(--font-mono); color:#fff; background:var(--navy); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.85rem;">1</span>
+        <div><strong style="color:var(--ink);">Calibration.</strong> <span style="color:var(--ink-muted);">Your webcam briefly calibrates to your eye position so your gaze can be tracked accurately.</span></div>
+      </li>
+      <li style="counter-increment: procstep; display:flex; gap:18px; padding:18px 0; border-bottom:1px solid var(--border);">
+        <span aria-hidden="true" style="font-family:var(--font-mono); color:#fff; background:var(--navy); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.85rem;">2</span>
+        <div><strong style="color:var(--ink);">Watch a trailer.</strong> <span style="color:var(--ink-muted);">You'll be shown a film trailer while your eye movements are recorded in the background.</span></div>
+      </li>
+      <li style="counter-increment: procstep; display:flex; gap:18px; padding:18px 0; border-bottom:1px solid var(--border);">
+        <span aria-hidden="true" style="font-family:var(--font-mono); color:#fff; background:var(--navy); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.85rem;">3</span>
+        <div><strong style="color:var(--ink);">Answer a brief questionnaire.</strong> <span style="color:var(--ink-muted);">A short set of questions follows each trailer.</span></div>
+      </li>
+      <li style="counter-increment: procstep; display:flex; gap:18px; padding:18px 0;">
+        <span aria-hidden="true" style="font-family:var(--font-mono); color:#fff; background:var(--navy); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.85rem;">4</span>
+        <div><strong style="color:var(--ink);">Repeat for 5 trailers in total.</strong> <span style="color:var(--ink-muted);">Steps 2 and 3 repeat until you have watched all five trailers and completed each questionnaire.</span></div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="rule-divider" aria-hidden="true"><span class="mark"></span></div>
+
+<!-- ================================================================
+     WITHDRAWAL INFORMATION
+     ================================================================ -->
+<section class="withdrawal section-pad reveal" aria-labelledby="withdrawal-heading">
+  <div class="container withdrawal-inner">
+    <div class="icon-badge" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 15l-4-4 4-4M5 11h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="section-eyebrow">Withdrawal Information</p>
+    <h2 id="withdrawal-heading">You are free to withdraw at any time</h2>
+    <p>Participation is entirely voluntary. You may withdraw from the study at any point before completing it, without needing to give a reason and without any penalty.</p>
+    <p>Because your data is linked only to an anonymous participant ID and not to your name or contact details, please note that <strong>you must request withdrawal before you finish the study</strong> — once your session ends, your data can no longer be traced back to you for removal. If you wish to withdraw during the study, simply close the browser tab, and no further data will be recorded. To request withdrawal of data already submitted, contact the research team at <span class="placeholder-note">[research-team@cardiffmet.ac.uk]</span> quoting your participant ID, shown to you at the end of the consent step below, within <span class="placeholder-note">[withdrawal window, e.g. 14 days]</span> of taking part.</p>
+  </div>
+</section>
+
+<div class="rule-divider" aria-hidden="true"><span class="mark"></span></div>
+
+<!-- ================================================================
+     CONSENT FORM
+     ================================================================ -->
+<section id="consent" class="section-pad reveal" aria-labelledby="consent-heading">
+  <div class="container">
+    <div class="section-head">
+      <p class="section-eyebrow">Step 2 of 3</p>
+      <h2 id="consent-heading">Consent to Participate</h2>
+      <p>Please confirm each statement below. All six are required before you can continue.</p>
+    </div>
+
+    <div class="consent-panel">
+
+      <!-- Consent form (hidden after successful submission) -->
+      <form id="consentForm" novalidate>
+        <fieldset style="border:none; padding:0; margin:0;">
+          <legend class="visually-hidden">Consent statements — all required</legend>
+
+          <ul class="consent-list">
+            <li class="consent-item">
+              <input type="checkbox" id="c1" class="consent-checkbox" required>
+              <label for="c1">I confirm that I am at least 18 years old.</label>
+            </li>
+            <li class="consent-item">
+              <input type="checkbox" id="c2" class="consent-checkbox" required>
+              <label for="c2">I have read and understood the Participant Information Sheet.</label>
+            </li>
+            <li class="consent-item">
+              <input type="checkbox" id="c3" class="consent-checkbox" required>
+              <label for="c3">I understand that participation is voluntary.</label>
+            </li>
+            <li class="consent-item">
+              <input type="checkbox" id="c4" class="consent-checkbox" required>
+              <label for="c4">I understand that webcam-based eye tracking will be used during the study.</label>
+            </li>
+            <li class="consent-item">
+              <input type="checkbox" id="c5" class="consent-checkbox" required>
+              <label for="c5">I consent to the collection and processing of my research data.</label>
+            </li>
+            <li class="consent-item">
+              <input type="checkbox" id="c6" class="consent-checkbox" required>
+              <label for="c6">I agree to participate in this study.</label>
+            </li>
+          </ul>
+        </fieldset>
+
+        <div class="consent-submit-row">
+          <button type="submit" class="btn btn-primary btn-large" id="consentSubmitBtn" disabled aria-describedby="consentHint">
+            I Consent &amp; Continue
+          </button>
+          <p class="consent-hint" id="consentHint">The button activates once every checkbox above is checked.</p>
+        </div>
+
+        <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+      </form>
+
+      <!-- Confirmation state, shown after a successful consent record -->
+      <div class="confirmation" id="confirmationBlock" style="display:none;" aria-live="polite">
+        <div class="check-badge" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Thank you. Your consent has been recorded successfully.</h3>
+        <p>Keep your participant ID below for your records — you'll need it if you ever request withdrawal of your data.</p>
+        <div class="record-summary" id="recordSummary"></div>
+        <a href="https://your-eye-tracking-platform-link.com" class="btn btn-primary btn-large" id="beginStudyBtn" target="_blank" rel="noopener">
+          Begin Eye-Tracking Study
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17L17 7M8 7h9v9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>This study is conducted by the Eureka Robotics Centre, Cardiff Metropolitan University, under ethics approval <span class="placeholder-note">[Ethics Reference Number]</span> from the Cardiff School of Technologies Research Ethics Committee. For questions about your rights as a participant, contact <span class="placeholder-note">[ethics-contact@cardiffmet.ac.uk]</span>.</p>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   TRAILER VISION — CONSENT & STUDY-FLOW LOGIC
+   ---------------------------------------------------------------------
+   Organised into small, commented, independent functions so each part
+   (backend config, validation, recording, UI) can be edited on its own
+   without touching the visual design above.
+   ===================================================================== */
+
+/* -------------------------------------------------------------------
+   1. BACKEND CONFIGURATION (placeholder)
+   ---------------------------------------------------------------------
+   Replace this with a real Firebase or Supabase project before launch.
+   The saveConsentRecord() function below already knows how to call
+   either — just fill in one of the two blocks and set BACKEND below.
+   ------------------------------------------------------------------- */
+const BACKEND = "none"; // "firebase" | "supabase" | "none" (local fallback only)
+
+// --- Firebase placeholder config ---
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// Example (uncomment once firebaseConfig above is filled in, and the
+// Firebase SDK <script type="module"> is added to <head>):
+//
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+// import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+// const fbApp = initializeApp(firebaseConfig);
+// const db = getFirestore(fbApp);
+// await addDoc(collection(db, "consentRecords"), record);
+
+// --- Supabase placeholder config ---
+const supabaseConfig = {
+  url: "https://YOUR_PROJECT.supabase.co",
+  anonKey: "YOUR_SUPABASE_ANON_KEY",
+  table: "consent_records"
+};
+// Example (once the Supabase JS SDK is loaded):
+//
+// const supabase = window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey);
+// const { error } = await supabase.from(supabaseConfig.table).insert(record);
+// if (error) throw error;
+
+/* -------------------------------------------------------------------
+   2. UUID GENERATION — anonymous participant ID only, no PII
+   ------------------------------------------------------------------- */
+function generateParticipantId(){
+  if (crypto && crypto.randomUUID) return crypto.randomUUID();
+  // Fallback for older browsers
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === "x" ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+/* -------------------------------------------------------------------
+   3. RECORD SAVING — routes to whichever backend is configured above,
+      and always falls back to local storage so the demo flow keeps
+      working even with no backend wired up yet.
+   ------------------------------------------------------------------- */
+async function saveConsentRecord(record){
+  if (BACKEND === "firebase") {
+    // await addDoc(collection(db, "consentRecords"), record);
+    throw new Error("Firebase is selected but not wired up yet — fill in firebaseConfig and the addDoc call above.");
+  }
+  if (BACKEND === "supabase") {
+    // const { error } = await supabase.from(supabaseConfig.table).insert(record);
+    // if (error) throw error;
+    throw new Error("Supabase is selected but not wired up yet — fill in supabaseConfig and the insert call above.");
+  }
+  // Local fallback (BACKEND === "none"): keep the flow usable before a
+  // real backend is connected. Replace/remove once BACKEND is set.
+  try {
+    const existing = JSON.parse(localStorage.getItem("trailerVisionConsentRecords") || "[]");
+    existing.push(record);
+    localStorage.setItem("trailerVisionConsentRecords", JSON.stringify(existing));
+  } catch (e) {
+    throw new Error("Could not store the consent record locally.");
+  }
+}
+
+/* -------------------------------------------------------------------
+   4. STEPPER — updates the "Read info / Consent / Begin" indicator
+   ------------------------------------------------------------------- */
+function setStep(stepNumber){
+  document.querySelectorAll(".step").forEach(el => {
+    const n = Number(el.dataset.step);
+    el.classList.toggle("is-active", n === stepNumber);
+    el.classList.toggle("is-done", n < stepNumber);
+  });
+}
+
+// Move to step 2 once the participant scrolls to the consent section
+const consentSection = document.getElementById("consent");
+const stepObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) setStep(2);
+  });
+}, { threshold: 0.3 });
+stepObserver.observe(consentSection);
+
+/* -------------------------------------------------------------------
+   5. CONSENT FORM VALIDATION — button stays disabled until every
+      required checkbox is checked
+   ------------------------------------------------------------------- */
+const checkboxes = Array.from(document.querySelectorAll(".consent-checkbox"));
+const submitBtn = document.getElementById("consentSubmitBtn");
+
+function refreshSubmitState(){
+  const allChecked = checkboxes.every(cb => cb.checked);
+  submitBtn.disabled = !allChecked;
+}
+checkboxes.forEach(cb => cb.addEventListener("change", refreshSubmitState));
+
+/* -------------------------------------------------------------------
+   6. FORM SUBMISSION — validate, build record, save, then reveal
+      the confirmation + "Begin Eye-Tracking Study" button
+   ------------------------------------------------------------------- */
+const consentForm = document.getElementById("consentForm");
+const formStatus = document.getElementById("formStatus");
+const confirmationBlock = document.getElementById("confirmationBlock");
+const recordSummary = document.getElementById("recordSummary");
+
+function showStatus(message, type){
+  formStatus.textContent = message;
+  formStatus.className = "form-status is-visible status-" + type;
+}
+function clearStatus(){
+  formStatus.className = "form-status";
+  formStatus.textContent = "";
+}
+
+consentForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearStatus();
+
+  // Defensive re-check, in case JS state ever drifts from the DOM
+  const allChecked = checkboxes.every(cb => cb.checked);
+  if (!allChecked) {
+    showStatus("Please confirm all six statements before continuing.", "error");
+    return;
+  }
+
+  submitBtn.disabled = true;
+  showStatus("Recording your consent…", "loading");
+
+  const record = {
+    participantId: generateParticipantId(),
+    timestamp: new Date().toISOString(),
+    consentGiven: true,
+    checkboxStatus: {
+      confirmedAdult: document.getElementById("c1").checked,
+      readInfoSheet: document.getElementById("c2").checked,
+      understoodVoluntary: document.getElementById("c3").checked,
+      understoodWebcamTracking: document.getElementById("c4").checked,
+      consentDataProcessing: document.getElementById("c5").checked,
+      agreedToParticipate: document.getElementById("c6").checked
+    },
+    userAgent: navigator.userAgent
+  };
+
+  try {
+    await saveConsentRecord(record);
+
+    // Only reveal the study link after the record is confirmed saved
+    consentForm.style.display = "none";
+    confirmationBlock.style.display = "block";
+    recordSummary.innerHTML =
+      `<div><span>Participant ID:</span> ${record.participantId}</div>` +
+      `<div><span>Recorded at:</span> ${record.timestamp}</div>`;
+    setStep(3);
+    confirmationBlock.focus?.();
+  } catch (err) {
+    submitBtn.disabled = false;
+    showStatus("We couldn't record your consent. Please check your connection and try again. (" + err.message + ")", "error");
+  }
+});
+
+/* -------------------------------------------------------------------
+   7. SCROLL-REVEAL for major sections
+   ------------------------------------------------------------------- */
+const revealEls = document.querySelectorAll(".reveal");
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+revealEls.forEach(el => revealObserver.observe(el));
+</script>
+</body>
+</html>
